@@ -1,8 +1,15 @@
 {
-  "name": "figma-rollup-plugin",
-  "id": "",
-  "api": "1.0.0",
-  "main": "dist/code.js",
-  "ui": "dist/ui.html",
-  "editorType": ["figma"]
+	"name": "figma-rollup-plugin",
+	"id": "",
+	"api": "1.0.0",
+	"main": "dist/code.js",
+	"ui": "dist/ui.html",
+	"editorType": ["figma"],
+	"networkAccess": {
+		"allowedDomains": [
+			"https://picsum.photos",
+			"https://raw.githubusercontent.com",
+			"https://raw.githubusercontent.com/pixelbin-dev/pixelbin-core/main/dist/pixelbin.v5.4.0.js"
+		]
+	}
 }

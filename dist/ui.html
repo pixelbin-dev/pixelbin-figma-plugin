@@ -1,6 +1,36 @@
-<body>
-    <h1>Title</h1>
-    <button>Button</button>
-<script >!function(e){"function"==typeof define&&define.amd?define(e):e()}((function(){"use strict";!function(e,t){void 0===t&&(t={});var n=t.insertAt;if(e&&"undefined"!=typeof document){var d=document.head||document.getElementsByTagName("head")[0],o=document.createElement("style");o.type="text/css","top"===n&&d.firstChild?d.insertBefore(o,d.firstChild):d.appendChild(o),o.styleSheet?o.styleSheet.cssText=e:o.appendChild(document.createTextNode(e))}}("body{background-color:#faebd7}"),onmessage=e=>{if(e.data.pluginMessage.payload){const t=e.data.pluginMessage.payload;console.log(t)}}}));
+<h2>Pixelbin</h2>
+<p>Remove the selected image's background</p>
+<button id="create">Apply</button>
+<button id="cancel">Cancel</button>
+<script
+	defer
+	src="https://raw.githubusercontent.com/pixelbin-dev/pixelbin-core/main/dist/pixelbin.v5.4.0.js"
+></script>
+<script defer>
+	document.getElementById("create").onclick = () => {
+		parent.postMessage({ pluginMessage: { type: "transform" } }, "*");
+
+		const pixelbin = new Pixelbin({
+			cloudName: "muddy-lab-41820d",
+			zone: "default",
+		});
+
+		// create an image with the pixelbin object
+		const image = pixelbin.image("demoImage.jpeg");
+
+		// create a transformation
+		let t = Pixelbin.transformations.Basic.resize({ height: 100, width: 100 });
+
+		// add Transformations to the image
+		image.setTransformation(t);
+
+		// get the url
+		console.log("end2", image.getUrl());
+	};
+
+	document.getElementById("cancel").onclick = () => {
+		parent.postMessage({ pluginMessage: { type: "close-plugin" } }, "*");
+	};
+</script><script >!function(e){"function"==typeof define&&define.amd?define(e):e()}((function(){"use strict";!function(e,t){void 0===t&&(t={});var n=t.insertAt;if(e&&"undefined"!=typeof document){var d=document.head||document.getElementsByTagName("head")[0],o=document.createElement("style");o.type="text/css","top"===n&&d.firstChild?d.insertBefore(o,d.firstChild):d.appendChild(o),o.styleSheet?o.styleSheet.cssText=e:o.appendChild(document.createTextNode(e))}}("body{background-color:#faebd7}"),onmessage=e=>{if(e.data.pluginMessage.payload){const t=e.data.pluginMessage.payload;console.log(t)}}}));
 </script>
-</body>
+

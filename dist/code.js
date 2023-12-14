@@ -1,1 +1,1 @@
-!function(e){"function"==typeof define&&define.amd?define(e):e()}((function(){"use strict";figma.showUI(__html__),figma.ui.postMessage({payload:{hello:!0}})}));
+!function(e){"function"==typeof define&&define.amd?define(e):e()}((function(){"use strict";figma.showUI(__html__),figma.ui.onmessage=e=>{"transform"===e.type&&figma.notify("Please select a single nodes")}}));

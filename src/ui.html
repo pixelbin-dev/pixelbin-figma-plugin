@@ -1,4 +1,31 @@
-<body>
-    <h1>Title</h1>
-    <button>Button</button>
-</body>
+<h2>Pixelbin</h2>
+<p>Remove the selected image's background</p>
+<button id="create">Apply</button>
+<button id="cancel">Cancel</button>
+<!-- <script async defer src="https://raw.githubusercontent.com/pixelbin-dev/pixelbin-core/main/dist/pixelbin.v5.4.0.js"></script> -->
+<script defer>
+	document.getElementById("create").onclick = () => {
+		parent.postMessage({ pluginMessage: { type: "transform" } }, "*");
+
+		// const pixelbin = new Pixelbin({
+		// 	cloudName: "muddy-lab-41820d",
+		// 	zone: "default",
+		// });
+
+		// // create an image with the pixelbin object
+		// const image = pixelbin.image("demoImage.jpeg");
+
+		// // create a transformation
+		// let t = Pixelbin.transformations.Basic.resize({ height: 100, width: 100 });
+
+		// // add Transformations to the image
+		// image.setTransformation(t);
+
+		// // get the url
+		// console.log("end2", image.getUrl());
+	};
+
+	document.getElementById("cancel").onclick = () => {
+		parent.postMessage({ pluginMessage: { type: "close-plugin" } }, "*");
+	};
+</script>
