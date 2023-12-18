@@ -1,0 +1,65 @@
+<html>
+	<head>
+		<script
+			src="https://cdn.pixelbin.io/v2/documentation/original/pixelbin.v5.4.0.js"
+			crossorigin="anonymous"
+		></script>
+		<script defer src="ui.js"></script>
+	</head>
+
+	<body>
+		<h2>Pixelbin</h2>
+		<p>Remove background of an selected image</p>
+		<button id="create">Apply</button>
+		<button id="cancel">Cancel</button>
+
+		<!-- --------------------- SCRIPT START ------------------------- -->
+		<script crossorigin="anonymous">
+			let bytes = null;
+			window.onmessage = async (event) => {
+				const { data } = event;
+				if (data.pluginMessage.type === "selectedImage") {
+					console.log(data.pluginMessage.imageBytes);
+					bytes = data.pluginMessage.imageBytes;
+
+					const pixelbin = new Pixelbin({
+						cloudName: "muddy-lab-41820d",
+						zone: "default",
+					});
+
+					// create an image with the pixelbin object
+					const image = await pixelbin.image("upload.jpeg");
+
+					// create a transformation
+					let t = Pixelbin.transformations.EraseBG.bg();
+
+					// add Transformations to the image
+					image.setTransformation(t);
+
+					// get the url
+					console.log("URL", image.getUrl());
+				}
+			};
+
+			document.getElementById("create").onclick = () => {
+				var myFunction = function (message) {
+					alert("Message from UI: " + message);
+				};
+
+				parent.postMessage(
+					{
+						pluginMessage: {
+							type: "transform",
+							dataSet: myFunction.toString(),
+						},
+					},
+					"*"
+				);
+			};
+			document.getElementById("cancel").onclick = () => {
+				parent.postMessage({ pluginMessage: { type: "close-plugin" } }, "*");
+			};
+		</script>
+		<!-- --------------------- SCRIPT END ------------------------- -->
+	</body>
+</html>

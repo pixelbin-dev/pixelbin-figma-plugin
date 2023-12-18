@@ -1,0 +1,16 @@
+{
+	"name": "14thDec",
+	"id": "1317177076838052932",
+	"api": "1.0.0",
+	"main": "code.js",
+	"capabilities": [],
+	"enableProposedApi": false,
+	"editorType": ["figma"],
+	"ui": "ui.html",
+	"networkAccess": {
+		"allowedDomains": [
+			"https://cdn.pixelbin.io/v2/documentation/original/pixelbin.v5.4.0.js",
+			"https://cdn.pixelbin.io"
+		]
+	}
+}
