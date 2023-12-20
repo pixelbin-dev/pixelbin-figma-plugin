@@ -1,7 +1,12 @@
 import ApiService from "./apiCall";
 import ebgOptions from "./../formOptions.js";
 
-figma.showUI(__html__);
+figma.showUI(__html__, {
+	title: "Pixelbin",
+	height: 400,
+	width: 248,
+	themeColors: true,
+});
 
 figma.ui.onmessage = async (msg) => {
 	if (msg.type === "initialCall") {
@@ -71,5 +76,6 @@ figma.ui.onmessage = async (msg) => {
 					];
 				});
 		}
+		figma.closePlugin();
 	} else if (msg.type === "close-plugin") figma.closePlugin();
 };

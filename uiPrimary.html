@@ -38,7 +38,6 @@
 			window.onmessage = async (event) => {
 				const { data } = event;
 				if (data.pluginMessage.type === "selectedImage") {
-					console.log(data.pluginMessage.imageBytes);
 					bytes = data.pluginMessage.imageBytes;
 
 					const pixelbin = new Pixelbin({

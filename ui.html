@@ -6,34 +6,111 @@
 		></script>
 
 		<style>
+			* {
+				box-sizing: border-box;
+			}
+			.checkbox__box {
+				position: absolute;
+			}
+
+			.checkbox__label {
+				margin-left: 10px;
+			}
+
+			.bottom-btn-container {
+				display: flex;
+				align-items: center;
+				width: 100%;
+				gap: 24px;
+				justify-content: space-between;
+			}
 			.main-container {
+				padding: 12px;
+				color: #aaabc5 !important;
 				display: flex;
 				flex-direction: column;
+				justify-content: space-between;
+				height: 100%;
+			}
+			.heading {
+				color: #ececf9;
+				font-weight: bold;
+				margin-bottom: 28px;
+			}
+
+			select {
 				border-radius: 8px;
-				/* background: #171921; */
-				padding: 8px;
-				margin: 15px;
+				border: 1px solid rgba(203, 205, 254, 0.22);
+				background: #2c2c2c;
+				box-shadow: none;
+				cursor: pointer;
+				min-height: 32px;
+				color: white;
+				width: 100%;
+				margin-bottom: 12px;
 			}
-			.formContainer {
-				display: flex;
-				flex-direction: column;
+			select:focus {
+				outline: none !important;
+				border: 1px solid #18a0fb;
 			}
-			.checkbox-container {
+
+			.white-text {
+				color: #ececf9 !important;
+			}
+			.checkbox__label::before {
+				border: 1px solid white !important;
+			}
+			.description {
+				margin-bottom: 4px;
+				margin-top: 4px;
+				color: #aaabc5 !important;
+				font-size: 10px;
+				padding-left: 2px;
+			}
+			.reset-container {
 				display: flex;
+				gap: 4px;
+				align-items: center;
+			}
+			.reset-text {
+				color: #18a0fb;
+				font-size: 12px;
+			}
+			.reset-ison {
+				height: 12px !important;
+				width: 12px !important;
 			}
 		</style>
+
+		<script
+			crossorigin="anonymous"
+			src="https://cdn.jsdelivr.net/gh/thomas-lowry/figma-plugin-ds/dist/iife/figma-plugin-ds.js"
+		></script>
 	</head>
 
 	<body class="main-container">
-		<h2>Pixelbin</h2>
-		<p>Remove background of an selected image</p>
-		<div id="formContainer"></div>
-		<button id="create">Apply</button>
-		<button id="cancel">Cancel</button>
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/figma-plugin-ds@1.0.1/dist/figma-plugin-ds.min.css"
+		/>
+		<div>
+			<div class="heading">Erase BG</div>
+			<div id="formContainer"></div>
+		</div>
+
+		<div class="bottom-btn-container">
+			<div class="reset-container" id="reset">
+				<div class="icon icon--swap icon--blue reset-icon"></div>
+				<div class="reset-text">Reset all</div>
+			</div>
+
+			<button id="create" class="button button--primary">Apply</button>
+		</div>
 
 		<!-- --------------------- SCRIPT START ------------------------- -->
 		<script crossorigin="anonymous">
-			let bytes = null;
+			let bytes = null,
+				optionsArray = [];
 
 			parent.postMessage(
 				{
@@ -47,8 +124,8 @@
 			window.onmessage = async (event) => {
 				const { data } = event;
 				if (data.pluginMessage.type === "createForm")
-					createOptionsForm(data.pluginMessage.optionsArray);
-
+					optionsArray = data.pluginMessage.optionsArray;
+				createOptionsForm();
 				if (data.pluginMessage.type === "selectedImage") {
 					bytes = data.pluginMessage.imageBytes;
 
@@ -62,42 +139,65 @@
 				}
 			};
 
-			function createOptionsForm(arr) {
+			function createOptionsForm() {
 				var formHolder = document.getElementById("formContainer");
-				arr.forEach((element) => {
+				optionsArray.forEach((element) => {
 					switch (element.type) {
 						case "enum":
+							const label = document.createElement("div");
+							label.textContent = element.title;
+							label.classList.add("description");
+							formHolder.appendChild(label);
+
 							const dropdown = document.createElement("select");
-							const option1 = document.createElement("option");
-							option1.text = "Option 1";
-							const option2 = document.createElement("option");
-							option2.text = "Option 2";
-							dropdown.add(option1);
-							dropdown.add(option2);
+							console.log(element.enum);
+							dropdown.id = element.identifier;
+							// Iterate through the array and add options to the dropdown
+							element.enum.forEach((optionText) => {
+								const option = document.createElement("option");
+								option.text = optionText;
+								option.value = option.value;
+								dropdown.add(option);
+							});
 							formHolder.appendChild(dropdown);
+							break;
 
 						case "boolean":
 							const mainDiv = document.createElement("div");
-							const subDiv = document.createElement("div");
+							mainDiv.classList.add("checkbox");
+
 							const checkbox = document.createElement("input");
-
-							mainDiv.classList.add("checkbox-container");
-
-							subDiv.textContent = element.title;
-
 							checkbox.type = "checkbox";
-							checkbox.checked = true;
+							checkbox.classList.add("checkbox__box");
+							checkbox.id = element.identifier;
+							checkbox.name = element.identifier;
+							checkbox.checked = element.default;
+
+							const subDiv = document.createElement("label");
+							subDiv.textContent = element.title;
+							subDiv.for = element.identifier;
+							subDiv.classList.add("checkbox__label");
+							subDiv.classList.add("white-text");
 
 							mainDiv.appendChild(checkbox);
 							mainDiv.appendChild(subDiv);
-
 							formHolder.appendChild(mainDiv);
+							break;
+						default:
 							break;
 					}
 				});
 			}
 
 			document.getElementById("create").onclick = () => {
+				let formDataJson = {};
+
+				formDataJson.industryType = document.getElementById("i").value;
+				formDataJson.checkbox1Value = document.getElementById("shadow").checked;
+				formDataJson.checkbox2Value = document.getElementById("r").checked;
+
+				console.log(formDataJson);
+
 				parent.postMessage(
 					{
 						pluginMessage: {
@@ -108,8 +208,9 @@
 				);
 			};
 
-			document.getElementById("cancel").onclick = () => {
-				parent.postMessage({ pluginMessage: { type: "close-plugin" } }, "*");
+			document.getElementById("reset").onclick = () => {
+				document.getElementById("formContainer").innerHTML = "";
+				createOptionsForm();
 			};
 		</script>
 		<!-- --------------------- SCRIPT END ------------------------- -->
