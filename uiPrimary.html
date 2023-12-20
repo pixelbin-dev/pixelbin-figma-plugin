@@ -1,0 +1,85 @@
+<html>
+	<head>
+		<script
+			src="https://cdn.pixelbin.io/v2/documentation/original/pixelbin.v5.4.0.js"
+			crossorigin="anonymous"
+		></script>
+	</head>
+
+	<body>
+		<h2>Pixelbin</h2>
+		<p>Remove background of an selected image</p>
+
+		<form id="myForm">
+			<label for="dropdown">Select an option:</label>
+			<select id="dropdown" name="dropdown">
+				<option value="option1">General</option>
+				<option value="option2">Ecommerce</option>
+				<option value="option3">Car</option>
+				<option value="option4">Human</option>
+			</select>
+			<br />
+
+			<label>
+				<input type="checkbox" name="checkbox1" /> Add Shadow (cars only)
+			</label>
+			<br />
+			<label> <input type="checkbox" name="checkbox2" /> Refine Output </label>
+
+			<br />
+
+			<button type="button" id="create" onclick="submitForm()">Apply</button>
+		</form>
+
+		<!-- --------------------- SCRIPT START ------------------------- -->
+		<script crossorigin="anonymous">
+			let bytes = null;
+
+			window.onmessage = async (event) => {
+				const { data } = event;
+				if (data.pluginMessage.type === "selectedImage") {
+					console.log(data.pluginMessage.imageBytes);
+					bytes = data.pluginMessage.imageBytes;
+
+					const pixelbin = new Pixelbin({
+						cloudName: "muddy-lab-41820d",
+						zone: "default",
+					});
+					const image = await pixelbin.image("upload.jpeg");
+					let t = Pixelbin.transformations.EraseBG.bg();
+					image.setTransformation(t);
+					console.log("URL", image.getUrl());
+				}
+			};
+
+			function submitForm() {
+				const dropdownValue = document.getElementById("dropdown").value;
+				const checkbox1Value = document.querySelector(
+					'input[name="checkbox1"]'
+				).checked;
+				const checkbox2Value = document.querySelector(
+					'input[name="checkbox2"]'
+				).checked;
+				const formData = {
+					dropdown: dropdownValue,
+					checkbox1: checkbox1Value,
+					checkbox2: checkbox2Value,
+				};
+				parent.postMessage(
+					{
+						pluginMessage: {
+							type: "transform",
+							formData: JSON.stringify(formData),
+						},
+					},
+					"*"
+				);
+			}
+
+			document.getElementById("cancel").onclick = () => {
+				parent.postMessage({ pluginMessage: { type: "close-plugin" } }, "*");
+			};
+		</script>
+		<!-- --------------------- SCRIPT END ------------------------- -->
+	</body>
+</html>

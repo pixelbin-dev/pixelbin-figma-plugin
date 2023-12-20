@@ -4,58 +4,110 @@
 			src="https://cdn.pixelbin.io/v2/documentation/original/pixelbin.v5.4.0.js"
 			crossorigin="anonymous"
 		></script>
-		<script defer src="ui.js"></script>
+
+		<style>
+			.main-container {
+				display: flex;
+				flex-direction: column;
+				border-radius: 8px;
+				/* background: #171921; */
+				padding: 8px;
+				margin: 15px;
+			}
+			.formContainer {
+				display: flex;
+				flex-direction: column;
+			}
+			.checkbox-container {
+				display: flex;
+			}
+		</style>
 	</head>
 
-	<body>
+	<body class="main-container">
 		<h2>Pixelbin</h2>
 		<p>Remove background of an selected image</p>
+		<div id="formContainer"></div>
 		<button id="create">Apply</button>
 		<button id="cancel">Cancel</button>
 
 		<!-- --------------------- SCRIPT START ------------------------- -->
 		<script crossorigin="anonymous">
 			let bytes = null;
+
+			parent.postMessage(
+				{
+					pluginMessage: {
+						type: "initialCall",
+					},
+				},
+				"*"
+			);
+
 			window.onmessage = async (event) => {
 				const { data } = event;
+				if (data.pluginMessage.type === "createForm")
+					createOptionsForm(data.pluginMessage.optionsArray);
+
 				if (data.pluginMessage.type === "selectedImage") {
-					console.log(data.pluginMessage.imageBytes);
 					bytes = data.pluginMessage.imageBytes;
 
 					const pixelbin = new Pixelbin({
 						cloudName: "muddy-lab-41820d",
 						zone: "default",
 					});
-
-					// create an image with the pixelbin object
 					const image = await pixelbin.image("upload.jpeg");
-
-					// create a transformation
 					let t = Pixelbin.transformations.EraseBG.bg();
-
-					// add Transformations to the image
 					image.setTransformation(t);
-
-					// get the url
-					console.log("URL", image.getUrl());
 				}
 			};
 
-			document.getElementById("create").onclick = () => {
-				var myFunction = function (message) {
-					alert("Message from UI: " + message);
-				};
+			function createOptionsForm(arr) {
+				var formHolder = document.getElementById("formContainer");
+				arr.forEach((element) => {
+					switch (element.type) {
+						case "enum":
+							const dropdown = document.createElement("select");
+							const option1 = document.createElement("option");
+							option1.text = "Option 1";
+							const option2 = document.createElement("option");
+							option2.text = "Option 2";
+							dropdown.add(option1);
+							dropdown.add(option2);
+							formHolder.appendChild(dropdown);
 
+						case "boolean":
+							const mainDiv = document.createElement("div");
+							const subDiv = document.createElement("div");
+							const checkbox = document.createElement("input");
+
+							mainDiv.classList.add("checkbox-container");
+
+							subDiv.textContent = element.title;
+
+							checkbox.type = "checkbox";
+							checkbox.checked = true;
+
+							mainDiv.appendChild(checkbox);
+							mainDiv.appendChild(subDiv);
+
+							formHolder.appendChild(mainDiv);
+							break;
+					}
+				});
+			}
+
+			document.getElementById("create").onclick = () => {
 				parent.postMessage(
 					{
 						pluginMessage: {
 							type: "transform",
-							dataSet: myFunction.toString(),
 						},
 					},
 					"*"
 				);
 			};
+
 			document.getElementById("cancel").onclick = () => {
 				parent.postMessage({ pluginMessage: { type: "close-plugin" } }, "*");
 			};

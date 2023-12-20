@@ -1,16 +1,28 @@
 {
-  "name": "14thDec",
-  "version": "1.0.0",
-  "description": "Your Figma Plugin",
-  "main": "code.js",
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "watch": "npm run build -- --watch"
-  },
-  "author": "",
-  "license": "",
-  "devDependencies": {
-    "@figma/plugin-typings": "^1.82.0",
-    "typescript": "*"
-  }
+	"name": "14thDec",
+	"version": "1.0.0",
+	"description": "Your Figma Plugin",
+	"main": "code.js",
+	"scripts": {
+		"build": "webpack",
+		"watch": "npm run build -- --watch"
+	},
+	"author": "",
+	"license": "",
+	"devDependencies": {
+		"@figma/plugin-typings": "^1.55.1",
+		"ts-loader": "^9.4.2",
+		"typescript": "^5.0.4",
+		"webpack": "^5.83.1",
+		"webpack-cli": "^5.1.1"
+	},
+	"dependencies": {
+		"buffer": "^6.0.3",
+		"crypto-js": "^4.1.1",
+		"pexels": "^1.4.0",
+		"querystring-es3": "^0.2.1",
+		"stream-browserify": "^3.0.0",
+		"url-parse": "^1.5.10",
+		"yaml": "^2.1.3"
+	}
 }
