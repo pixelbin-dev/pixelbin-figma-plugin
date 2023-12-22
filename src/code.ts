@@ -2,7 +2,7 @@ import ApiService from "./apiCall";
 import ebgOptions from "./../formOptions.js";
 
 figma.showUI(__html__, {
-	title: "Pixelbin",
+	title: "Erase Bg",
 	height: 400,
 	width: 248,
 	themeColors: true,
@@ -21,31 +21,34 @@ figma.ui.onmessage = async (msg) => {
 			figma.notify("Please select a single node");
 		else {
 			let node: any = figma.currentPage.selection[0];
-			// figma.notify(node.fills[0].type);
 
-			const selectedItem = figma.currentPage.selection[0];
-
-			ApiService.get(
-				"https://api.pixelbin.io/service/platform/assets/v1.0/playground/default",
-				{
-					headers: {
-						"x-ebg-param": "MjAyMzEyMTlUMTAwMDA4Wg==",
-						"x-ebg-signature":
-							"v1:7cc2ba0b7e0ae2b75843fecf562a4a719d25936e966446c4e80f6e5d49f8326f",
-						Authorization:
-							"Bearer ZGE2NmJhYjAtNzIzYS00MTU3LTk0YWItYjRlODNmZDkxMGUx",
-
-						"Access-Control-Allow-Origin": "anonymous",
-					},
-					referrer: "https://www.pixelbin.io",
-				}
-			)
-				.then(() => {
-					console.log("Sucessfull");
-				})
-				.catch((e) => {
-					console.log("with err", e);
-				});
+			try {
+				const res = await fetch(
+					"https://d4e1-115-117-121-194.ngrok-free.app/service/platform/assets/v1.0/upload/signed-url",
+					{
+						method: "POST",
+						headers: {
+							"x-pixelbin-token": "da66bab0-723a-4157-94ab-b4e83fd910e1",
+							"Content-Type": "application/json",
+							// mode: "cors",
+						},
+						body: JSON.stringify({
+							path: "path/to/containing/folder",
+							name: "filename",
+							format: "jpeg",
+							access: "public-read",
+							tags: ["tag1", "tag2"],
+							metadata: {},
+							overwrite: false,
+							filenameOverride: true,
+						}),
+						redirect: "follow",
+					}
+				);
+				console.log("sure", res);
+			} catch (err) {
+				console.log("Err", err);
+			}
 
 			if (node.fills[0].type === "IMAGE") {
 				const image = figma.getImageByHash(node.fills[0].imageHash);
@@ -63,7 +66,7 @@ figma.ui.onmessage = async (msg) => {
 
 			figma
 				.createImageAsync(
-					"https://cdn.pixelbin.io/v2/muddy-lab-41820d/erase.bg(i:general,shadow:false,r:true)/upload.jpeg"
+					"https://cdn.pixelbin.io/v2/muddy-lab-41820d/erase.bg(i:general,shadow:false,r:true)/__playground/playground-default.jpeg"
 				)
 				.then(async (image: Image) => {
 					// node.resize(node.width, node.height);
@@ -74,8 +77,10 @@ figma.ui.onmessage = async (msg) => {
 							scaleMode: "FILL",
 						},
 					];
+				})
+				.then(() => {
+					figma.closePlugin();
 				});
 		}
-		figma.closePlugin();
 	} else if (msg.type === "close-plugin") figma.closePlugin();
 };
