@@ -1,0 +1,28 @@
+{
+	"name": "14thDec",
+	"id": "1317177076838052932",
+	"api": "1.0.0",
+	"main": "dist/code.js",
+	"capabilities": [],
+	"enableProposedApi": false,
+	"editorType": ["figma"],
+	"ui": "ui.html",
+	"networkAccess": {
+		"allowedDomains": [
+			"https://cdn.pixelbin.io/v2/documentation/original/pixelbin.v5.4.0.js",
+			"https://cdn.pixelbin.io",
+			"https://api.pixelbin.io",
+			"https://api.pixelbin.io/service/platform/assets/v1.0/playground/default",
+			"https://cdn.jsdelivr.net/gh/thomas-lowry/figma-plugin-ds/dist/iife/figma-plugin-ds.js",
+			"https://cdn.jsdelivr.net/npm/figma-plugin-ds@1.0.1/dist/figma-plugin-ds.min.css",
+			"https://rsms.me",
+			"https://d4e1-115-117-121-194.ngrok-free.app",
+			"https://d4e1-115-117-121-194.ngrok-free.app/service/platform/assets/v1.0/upload/signed-url"
+		],
+		"devAllowedDomains": [
+			"http://localhost:8081",
+			"http://localhost:8081/service/platform/assets/v1.0/upload/signed-url"
+		],
+		"reasoning": "reason"
+	}
+}

@@ -1,0 +1,259 @@
+<html>
+	<head>
+		<script
+			src="https://cdn.pixelbin.io/v2/documentation/original/pixelbin.v5.4.0.js"
+			crossorigin="anonymous"
+		></script>
+
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+			select {
+				border-radius: 8px;
+				border: 1px solid rgba(203, 205, 254, 0.22);
+				background: #2c2c2c;
+				box-shadow: none;
+				cursor: pointer;
+				min-height: 32px;
+				color: white;
+				width: 100%;
+				margin-bottom: 12px;
+			}
+			select:focus {
+				outline: none !important;
+				border: 1px solid #18a0fb;
+			}
+			button {
+				cursor: pointer;
+			}
+
+			.checkbox__box {
+				position: absolute;
+			}
+
+			.checkbox__label {
+				margin-left: 10px;
+			}
+
+			.bottom-btn-container {
+				display: flex;
+				align-items: center;
+				width: 100%;
+				gap: 24px;
+				justify-content: space-between;
+			}
+			.main-container {
+				padding: 12px;
+				color: #aaabc5 !important;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				height: 100%;
+			}
+			.heading {
+				color: #ececf9;
+				font-weight: bold;
+				margin-bottom: 28px;
+			}
+			.white-text {
+				color: #ececf9 !important;
+			}
+			.checkbox__label::before {
+				border: 1px solid white !important;
+			}
+			.description {
+				margin-bottom: 4px;
+				margin-top: 4px;
+				color: #aaabc5 !important;
+				font-size: 10px;
+				padding-left: 2px;
+			}
+			.reset-container {
+				display: flex;
+				gap: 4px;
+				align-items: center;
+				cursor: pointer;
+			}
+			.reset-text {
+				color: #18a0fb;
+				font-size: 12px;
+			}
+			.reset-icon {
+				height: 12px !important;
+				width: 12px !important;
+			}
+			.checkbox__box {
+				cursor: pointer;
+			}
+		</style>
+
+		<script
+			crossorigin="anonymous"
+			src="https://cdn.jsdelivr.net/gh/thomas-lowry/figma-plugin-ds/dist/iife/figma-plugin-ds.js"
+		></script>
+	</head>
+
+	<body class="main-container">
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/figma-plugin-ds@1.0.1/dist/figma-plugin-ds.min.css"
+		/>
+		<link rel="stylesheet" href="style.css" />
+		<div>
+			<div class="heading">Erase Bg</div>
+			<!-- <div class="icon icon--spinner icon--spin"></div> -->
+			<div id="formContainer"></div>
+		</div>
+
+		<div class="bottom-btn-container">
+			<div class="reset-container" id="reset">
+				<div class="icon icon--swap icon--blue reset-icon"></div>
+				<div class="reset-text">Reset all</div>
+			</div>
+
+			<button id="apply" class="button button--primary">Apply</button>
+		</div>
+
+		<!-- --------------------- SCRIPT START ------------------------- -->
+		<script crossorigin="anonymous">
+			let bytes = null,
+				optionsArray = [];
+			prevSavedFormValues = "";
+
+			parent.postMessage(
+				{
+					pluginMessage: {
+						type: "initialCall",
+					},
+				},
+				"*"
+			);
+
+			function camelCase(str) {
+				return str
+					.replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
+						return index == 0 ? word.toLowerCase() : word.toUpperCase();
+					})
+					.replace(/\s+/g, "");
+			}
+
+			window.onmessage = async (event) => {
+				const { data } = event;
+				if (data.pluginMessage.type === "createForm") {
+					optionsArray = data.pluginMessage.optionsArray;
+					prevSavedFormValues = data.pluginMessage.savedFormValue;
+					createOptionsForm(false);
+				}
+				if (data.pluginMessage.type === "selectedImage") {
+					bytes = data.pluginMessage.imageBytes;
+					// console.log("bytes", data.pluginMessage.imageBytes);
+					const pixelbin = new Pixelbin({
+						cloudName: "muddy-lab-41820d",
+						zone: "default",
+					});
+					const image = await pixelbin.image(
+						"__playground/playground-default.jpeg"
+					);
+					let t = Pixelbin.transformations.EraseBG.bg();
+					image.setTransformation(t);
+					// console.log("url after remoing bg", image.getUrl());
+				}
+			};
+
+			function createOptionsForm(isReset) {
+				var formHolder = document.getElementById("formContainer");
+				optionsArray.forEach((element) => {
+					switch (element.type) {
+						case "enum":
+							const label = document.createElement("div");
+							label.textContent = element.title;
+							label.classList.add("description");
+							formHolder.appendChild(label);
+
+							const dropdown = document.createElement("select");
+
+							dropdown.id = camelCase(element.name);
+							// Iterate through the array and add options to the dropdown
+							element.enum.forEach((optionText) => {
+								const option = document.createElement("option");
+								option.text = optionText;
+								option.value = option.value;
+								dropdown.add(option);
+							});
+							formHolder.appendChild(dropdown);
+							break;
+
+						case "boolean":
+							const mainDiv = document.createElement("div");
+							mainDiv.classList.add("checkbox");
+
+							const checkbox = document.createElement("input");
+							checkbox.type = "checkbox";
+							checkbox.classList.add("checkbox__box");
+							checkbox.id = camelCase(element.name);
+							checkbox.name = camelCase(element.name);
+							checkbox.checked = element.default;
+
+							const subDiv = document.createElement("label");
+							subDiv.textContent = element.title;
+							subDiv.for = camelCase(element.name);
+							subDiv.classList.add("checkbox__label");
+							subDiv.classList.add("white-text");
+
+							mainDiv.appendChild(checkbox);
+							mainDiv.appendChild(subDiv);
+							formHolder.appendChild(mainDiv);
+							break;
+						default:
+							break;
+					}
+				});
+
+				if (prevSavedFormValues.length && !isReset) {
+					let arr = JSON.parse(prevSavedFormValues),
+						arrValues = [];
+
+					Object.entries(arr).forEach((entry, index) => {
+						const [key, value] = entry;
+						let foundIndex = optionsArray.findIndex(
+								(item) => camelCase(item.name) === key
+							),
+							temp = optionsArray[foundIndex];
+
+						if (temp.type == "enum") document.getElementById(key).value = value;
+						if (temp.type == "boolean")
+							document.getElementById(key).checked = value;
+					});
+				}
+			}
+
+			document.getElementById("apply").onclick = () => {
+				let formDataJson = {};
+
+				optionsArray.forEach((item, index) => {
+					formDataJson[camelCase(item.name)] =
+						item.type === "enum"
+							? document.getElementById(camelCase(item.name)).value
+							: document.getElementById(camelCase(item.name)).checked;
+				});
+
+				parent.postMessage(
+					{
+						pluginMessage: {
+							type: "transform",
+							params: JSON.stringify(formDataJson),
+						},
+					},
+					"*"
+				);
+			};
+
+			document.getElementById("reset").onclick = () => {
+				document.getElementById("formContainer").innerHTML = "";
+				createOptionsForm(true);
+			};
+		</script>
+		<!-- --------------------- SCRIPT END ------------------------- -->
+	</body>
+</html>
