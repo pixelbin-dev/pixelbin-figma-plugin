@@ -118,6 +118,7 @@
 		<script crossorigin="anonymous">
 			let bytes = null,
 				optionsArray = [];
+			prevSavedFormValues = "";
 
 			parent.postMessage(
 				{
@@ -132,7 +133,8 @@
 				const { data } = event;
 				if (data.pluginMessage.type === "createForm") {
 					optionsArray = data.pluginMessage.optionsArray;
-					createOptionsForm();
+					prevSavedFormValues = data.pluginMessage.savedFormValue;
+					createOptionsForm(false);
 				}
 				if (data.pluginMessage.type === "selectedImage") {
 					bytes = data.pluginMessage.imageBytes;
@@ -150,7 +152,7 @@
 				}
 			};
 
-			function createOptionsForm() {
+			function createOptionsForm(isReset) {
 				var formHolder = document.getElementById("formContainer");
 				optionsArray.forEach((element) => {
 					switch (element.type) {
@@ -198,6 +200,19 @@
 							break;
 					}
 				});
+
+				if (prevSavedFormValues.length && !isReset) {
+					let arr = JSON.parse(prevSavedFormValues),
+						arrValues = [];
+
+					Object.entries(arr).forEach((entry, index) => {
+						const [key, value] = entry;
+					});
+
+					document.getElementById("i").value = arrValues[0];
+					document.getElementById("shadow").checked = arrValues[1];
+					document.getElementById("r").checked = arrValues[2];
+				}
 			}
 
 			document.getElementById("create").onclick = () => {
@@ -220,7 +235,7 @@
 
 			document.getElementById("reset").onclick = () => {
 				document.getElementById("formContainer").innerHTML = "";
-				createOptionsForm();
+				createOptionsForm(true);
 			};
 		</script>
 		<!-- --------------------- SCRIPT END ------------------------- -->

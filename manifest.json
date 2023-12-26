@@ -18,6 +18,11 @@
 			"https://rsms.me",
 			"https://d4e1-115-117-121-194.ngrok-free.app",
 			"https://d4e1-115-117-121-194.ngrok-free.app/service/platform/assets/v1.0/upload/signed-url"
-		]
+		],
+		"devAllowedDomains": [
+			"http://localhost:8081",
+			"http://localhost:8081/service/platform/assets/v1.0/upload/signed-url"
+		],
+		"reasoning": "reason"
 	}
 }

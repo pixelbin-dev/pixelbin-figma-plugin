@@ -10,13 +10,37 @@ figma.showUI(__html__, {
 
 figma.ui.onmessage = async (msg) => {
 	if (msg.type === "initialCall") {
-		figma.ui.postMessage({
+		const body = {
 			type: "createForm",
 			optionsArray: ebgOptions,
-		});
+			savedFormValue: null,
+		};
+
+		figma.clientStorage
+			.getAsync("savedFormValue")
+			.then((value) => {
+				body.savedFormValue = value;
+			})
+			.catch((err) => {
+				console.error("Error loading data:", err);
+			})
+			.finally(() => {
+				figma.ui.postMessage(body);
+			});
 	}
 
 	if (msg.type === "transform") {
+		if (msg.params) {
+			figma.clientStorage
+				.setAsync("savedFormValue", msg.params)
+				.then(() => {
+					console.log(`Data saved`);
+				})
+				.catch((err) => {
+					console.error("Error saving data:", err);
+				});
+		}
+
 		if (figma.currentPage.selection.length > 1)
 			figma.notify("Please select a single node");
 		else {
@@ -24,7 +48,7 @@ figma.ui.onmessage = async (msg) => {
 
 			try {
 				const res = await fetch(
-					"https://d4e1-115-117-121-194.ngrok-free.app/service/platform/assets/v1.0/upload/signed-url",
+					"http://localhost:8081/service/platform/assets/v1.0/upload/signed-url",
 					{
 						method: "POST",
 						headers: {
@@ -69,7 +93,6 @@ figma.ui.onmessage = async (msg) => {
 					"https://cdn.pixelbin.io/v2/muddy-lab-41820d/erase.bg(i:general,shadow:false,r:true)/__playground/playground-default.jpeg"
 				)
 				.then(async (image: Image) => {
-					// node.resize(node.width, node.height);
 					node.fills = [
 						{
 							type: "IMAGE",
