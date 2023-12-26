@@ -13,7 +13,7 @@ figma.ui.onmessage = async (msg) => {
 		const body = {
 			type: "createForm",
 			optionsArray: ebgOptions,
-			savedFormValue: null,
+			savedFormValue: "",
 		};
 
 		figma.clientStorage

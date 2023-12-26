@@ -99,6 +99,7 @@
 			rel="stylesheet"
 			href="https://cdn.jsdelivr.net/npm/figma-plugin-ds@1.0.1/dist/figma-plugin-ds.min.css"
 		/>
+		<link rel="stylesheet" href="style.css" />
 		<div>
 			<div class="heading">Erase Bg</div>
 			<!-- <div class="icon icon--spinner icon--spin"></div> -->
@@ -111,7 +112,7 @@
 				<div class="reset-text">Reset all</div>
 			</div>
 
-			<button id="create" class="button button--primary">Apply</button>
+			<button id="apply" class="button button--primary">Apply</button>
 		</div>
 
 		<!-- --------------------- SCRIPT START ------------------------- -->
@@ -128,6 +129,14 @@
 				},
 				"*"
 			);
+
+			function camelCase(str) {
+				return str
+					.replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
+						return index == 0 ? word.toLowerCase() : word.toUpperCase();
+					})
+					.replace(/\s+/g, "");
+			}
 
 			window.onmessage = async (event) => {
 				const { data } = event;
@@ -164,7 +173,7 @@
 
 							const dropdown = document.createElement("select");
 
-							dropdown.id = element.identifier;
+							dropdown.id = camelCase(element.name);
 							// Iterate through the array and add options to the dropdown
 							element.enum.forEach((optionText) => {
 								const option = document.createElement("option");
@@ -182,13 +191,13 @@
 							const checkbox = document.createElement("input");
 							checkbox.type = "checkbox";
 							checkbox.classList.add("checkbox__box");
-							checkbox.id = element.identifier;
-							checkbox.name = element.identifier;
+							checkbox.id = camelCase(element.name);
+							checkbox.name = camelCase(element.name);
 							checkbox.checked = element.default;
 
 							const subDiv = document.createElement("label");
 							subDiv.textContent = element.title;
-							subDiv.for = element.identifier;
+							subDiv.for = camelCase(element.name);
 							subDiv.classList.add("checkbox__label");
 							subDiv.classList.add("white-text");
 
@@ -207,20 +216,27 @@
 
 					Object.entries(arr).forEach((entry, index) => {
 						const [key, value] = entry;
-					});
+						let foundIndex = optionsArray.findIndex(
+								(item) => camelCase(item.name) === key
+							),
+							temp = optionsArray[foundIndex];
 
-					document.getElementById("i").value = arrValues[0];
-					document.getElementById("shadow").checked = arrValues[1];
-					document.getElementById("r").checked = arrValues[2];
+						if (temp.type == "enum") document.getElementById(key).value = value;
+						if (temp.type == "boolean")
+							document.getElementById(key).checked = value;
+					});
 				}
 			}
 
-			document.getElementById("create").onclick = () => {
+			document.getElementById("apply").onclick = () => {
 				let formDataJson = {};
 
-				formDataJson.industryType = document.getElementById("i").value;
-				formDataJson.addShadow = document.getElementById("shadow").checked;
-				formDataJson.refine = document.getElementById("r").checked;
+				optionsArray.forEach((item, index) => {
+					formDataJson[camelCase(item.name)] =
+						item.type === "enum"
+							? document.getElementById(camelCase(item.name)).value
+							: document.getElementById(camelCase(item.name)).checked;
+				});
 
 				parent.postMessage(
 					{
