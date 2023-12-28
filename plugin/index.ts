@@ -1,4 +1,6 @@
 import eraseBgOptions from "../constants";
+
+// console.log("PixelBin", pixelbin);
 // Handle the execution of the first command
 // if (figma.command == "plugin-command")
 // 	figma.closePlugin("The plugin command was executed");
@@ -48,39 +50,13 @@ figma.ui.onmessage = async (msg) => {
 					console.error("Error saving data:", err);
 				});
 		}
+		if (!figma.currentPage.selection.length)
+			figma.notify("Please select a image");
 
 		if (figma.currentPage.selection.length > 1)
-			figma.notify("Please select a single node");
+			figma.notify("Please select a single image");
 		else {
 			let node: any = figma.currentPage.selection[0];
-
-			try {
-				const res = await fetch(
-					"http://localhost:8081/service/platform/assets/v1.0/upload/signed-url",
-					{
-						method: "POST",
-						headers: {
-							"x-pixelbin-token": "da66bab0-723a-4157-94ab-b4e83fd910e1",
-							"Content-Type": "application/json",
-							// mode: "cors",
-						},
-						body: JSON.stringify({
-							path: "path/to/containing/folder",
-							name: "filename",
-							format: "jpeg",
-							access: "public-read",
-							tags: ["tag1", "tag2"],
-							metadata: {},
-							overwrite: false,
-							filenameOverride: true,
-						}),
-						redirect: "follow",
-					}
-				);
-				console.log("sure", res);
-			} catch (err) {
-				console.log("Err", err);
-			}
 
 			if (node.fills[0].type === "IMAGE") {
 				const image = figma.getImageByHash(node.fills[0].imageHash);
@@ -108,9 +84,6 @@ figma.ui.onmessage = async (msg) => {
 							scaleMode: "FILL",
 						},
 					];
-				})
-				.then(() => {
-					figma.closePlugin();
 				});
 		}
 	} else if (msg.type === "close-plugin") figma.closePlugin();

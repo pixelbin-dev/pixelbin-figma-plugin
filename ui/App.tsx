@@ -5,11 +5,12 @@ import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
 import eraseBgOptions from "./../constants";
 import { Util } from "./../util.ts";
 import "./styles/style.scss";
+import Pixelbin, { transformations } from "@pixelbin/core";
 
 const defaultPixelBinClient: PixelbinClient = new PixelbinClient(
 	new PixelbinConfig({
-		domain: "https://api.pixelbinz0.de",
-		apiSecret: "c22d0adb-932b-4a43-97e8-30f91c40b0f2",
+		domain: "https://api.pixelbin.io",
+		apiSecret: "da66bab0-723a-4157-94ab-b4e83fd910e1",
 	})
 );
 
@@ -17,7 +18,6 @@ PdkAxios.defaults.withCredentials = false;
 
 function App() {
 	// Create a state variable to count upcoming rectangles
-	const [count, setCount] = useState(0);
 	const [formValues, setFormValues] = useState({});
 
 	useEffect(() => {
@@ -32,7 +32,6 @@ function App() {
 	}, []);
 
 	window.onmessage = async (event) => {
-		let bytes = null;
 		const { data } = event;
 		if (data.pluginMessage.type === "createForm") {
 			let temp = { ...formValues };
@@ -47,20 +46,45 @@ function App() {
 			});
 			setFormValues({ ...temp });
 		}
-		// if (data.pluginMessage.type === "selectedImage") {
-		// 	bytes = data.pluginMessage.imageBytes;
-		// 	// console.log("bytes", data.pluginMessage.imageBytes);
-		// 	const pixelbin = new Pixelbin({
-		// 		cloudName: "muddy-lab-41820d",
-		// 		zone: "default",
-		// 	});
-		// 	const image = await pixelbin.image(
-		// 		"__playground/playground-default.jpeg"
-		// 	);
-		// 	let t = Pixelbin.transformations.EraseBG.bg();
-		// 	image.setTransformation(t);
-		// 	// console.log("url after remoing bg", image.getUrl());
-		// }
+		if (data.pluginMessage.type === "selectedImage") {
+			let presignedUrl = null;
+			let blob = new Blob([data.pluginMessage.imageBytes], {
+				type: "image/jpeg",
+			});
+
+			const pixelbin = new Pixelbin({
+				cloudName: "muddy-lab-41820d",
+				zone: "default", // optional
+			});
+			const EraseBg = transformations.EraseBG;
+			const demoImage = pixelbin.image("__playground/playground-default.jpeg"); // File Path on Pixelbin
+			demoImage.setTransformation(EraseBg.bg());
+			console.log("DIU", demoImage.getUrl());
+
+			presignedUrl = await defaultPixelBinClient.assets.createSignedUrlV2({
+				path: "path/to/containing/folder",
+				name: "filename",
+				format: "jpeg",
+				access: "public-read",
+				tags: ["tag1", "tag2"],
+				metadata: {},
+				overwrite: false,
+				filenameOverride: true,
+			});
+
+			// bytes = data.pluginMessage.imageBytes;
+			// // console.log("bytes", data.pluginMessage.imageBytes);
+			// const pixelbin = new Pixelbin({
+			// 	cloudName: "muddy-lab-41820d",
+			// 	zone: "default",
+			// });
+			// const image = await pixelbin.image(
+			// 	"__playground/playground-default.jpeg"
+			// );
+			// let t = Pixelbin.transformations.EraseBG.bg();
+			// image.setTransformation(t);
+			// // console.log("url after remoing bg", image.getUrl());
+		}
 	};
 
 	const formComponentCreator = () => {
@@ -124,33 +148,6 @@ function App() {
 
 	/** Handles button clicks and sends data to the plugin’s backend */
 	function handleSubmit() {
-		defaultPixelBinClient.assets
-			.createSignedUrlV2({
-				path: "path/to/containing/folder",
-				name: "filename",
-				format: "jpeg",
-				access: "public-read",
-				tags: ["tag1", "tag2"],
-				metadata: {},
-				overwrite: false,
-				filenameOverride: true,
-			})
-			.then((response: any) => {
-				console.log("rs here", JSON.stringify(response));
-			})
-			.catch((error: any) => {
-				// Error: Log an error message if any key deletion fails
-				console.error("Error clearing Figma clientStorage:", error);
-			});
-		// Increase the rectangle counter
-		const newCount = count + 1;
-
-		// 	/*
-		//     Ask React to change the value. Don’t increase the value right inside the `setCount` callback, because the state won’t be updated before the next re-render and we won’t be able to access the new value until then. See: https://react.dev/reference/react/useState#ive-updated-the-state-but-logging-gives-me-the-old-value
-		//      */
-		setCount(newCount);
-
-		// Send the message to the backend
 		parent.postMessage(
 			{
 				pluginMessage: {
