@@ -8,7 +8,8 @@ import "./styles/style.scss";
 
 const defaultPixelBinClient: PixelbinClient = new PixelbinClient(
 	new PixelbinConfig({
-		apiSecret: "da66bab0-723a-4157-94ab-b4e83fd910e1",
+		domain: "https://api.pixelbinz0.de",
+		apiSecret: "c22d0adb-932b-4a43-97e8-30f91c40b0f2",
 	})
 );
 
@@ -112,6 +113,15 @@ function App() {
 		);
 	};
 
+	function handleReset() {
+		let temp = { ...formValues };
+		eraseBgOptions.forEach((option, index) => {
+			const camelCaseName = Util.camelCase(option.name);
+			temp[camelCaseName] = option.default;
+		});
+		setFormValues({ ...temp });
+	}
+
 	/** Handles button clicks and sends data to the plugin’s backend */
 	function handleSubmit() {
 		defaultPixelBinClient.assets
@@ -126,9 +136,12 @@ function App() {
 				filenameOverride: true,
 			})
 			.then((response: any) => {
-				console.log(JSON.stringify(response));
+				console.log("rs here", JSON.stringify(response));
+			})
+			.catch((error: any) => {
+				// Error: Log an error message if any key deletion fails
+				console.error("Error clearing Figma clientStorage:", error);
 			});
-
 		// Increase the rectangle counter
 		const newCount = count + 1;
 
@@ -162,7 +175,7 @@ function App() {
 				<div id="options-wrapper">{formComponentCreator()}</div>
 			</div>
 
-			<div className="bottom-btn-container">
+			<div className="bottom-btn-container" onClick={handleReset}>
 				<div className="reset-container" id="reset">
 					<div className="icon icon--swap icon--blue reset-icon"></div>
 					<div className="reset-text">Reset all</div>
