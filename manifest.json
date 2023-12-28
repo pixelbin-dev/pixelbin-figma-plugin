@@ -1,0 +1,8 @@
+{
+	"name": "Erase Bg",
+	"id": "1321746727890933516",
+	"api": "1.0.0",
+	"editorType": ["figma"],
+	"main": "dist/plugin/index.js",
+	"ui": "dist/ui/index.html"
+}
