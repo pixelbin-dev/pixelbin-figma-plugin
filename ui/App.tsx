@@ -21,6 +21,7 @@ PdkAxios.defaults.withCredentials = false;
 function App() {
 	// Create a state variable to count upcoming rectangles
 	const [formValues, setFormValues] = useState({});
+	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
 		parent.postMessage(
@@ -95,6 +96,9 @@ function App() {
 				})
 				.catch((err) => console.log("Error while uploading", err));
 		}
+		if (data.pluginMessage.type === "toggleLoader") {
+			setIsLoading(!isLoading);
+		}
 	};
 
 	const formComponentCreator = () => {
@@ -167,10 +171,11 @@ function App() {
 			},
 			"*"
 		);
+		setIsLoading(!isLoading);
 	}
 
 	return (
-		<div className="main-container">
+		<div className={`main-container ${isLoading ? "hide-overflow" : ""}`}>
 			{/* <link
 				rel="stylesheet"
 				href="https://cdn.jsdelivr.net/npm/figma-plugin-ds@1.0.1/dist/figma-plugin-ds.min.css"
@@ -195,9 +200,11 @@ function App() {
 					Apply
 				</button>
 			</div>
-			{/* <div className="loader-modal">
-				<img src={LoaderGif} alt="Loader" height={100} width={100} />
-			</div> */}
+			{isLoading && (
+				<div className="loader-modal">
+					<img src={LoaderGif} alt="Loader" height={100} width={100} />
+				</div>
+			)}
 		</div>
 	);
 }

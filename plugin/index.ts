@@ -80,6 +80,13 @@ figma.ui.onmessage = async (msg) => {
 						scaleMode: "FILL",
 					},
 				];
+				figma.ui.postMessage({
+					type: "toggleLoader",
+				});
+				figma.notify(
+					"Transformation Applied (you can use (ctrl/command + z/y) or  to undo/redo tranformation)",
+					{ timeout: 5000 }
+				);
 			})
 			.catch((err) => {
 				figma.notify("Something went wrong");
