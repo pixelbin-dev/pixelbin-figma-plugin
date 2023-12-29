@@ -2109,6 +2109,8 @@ button {
 	flex-direction: column;
 	justify-content: space-between;
 	height: 100%;
+	position: relative;
+	overflow: hidden;
 }
 .heading {
 	color: #ececf9;
@@ -2144,5 +2146,18 @@ button {
 }
 .checkbox__box {
 	cursor: pointer;
+}
+
+.loader-modal {
+	min-width: 100%;
+	min-height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(16, 19, 20, 0.9);
+	z-index: 100 !important;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 // *********************************** ------ ************************************** //

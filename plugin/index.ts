@@ -21,7 +21,6 @@ const rectangles: RectangleNode[] = [];
 /* Handle the message from the UI, being aware that it will be an object with the single `count` property */
 figma.ui.onmessage = async (msg) => {
 	var node: any = figma?.currentPage?.selection[0];
-	console.log("NodeDetails", node);
 	if (msg.type === "initialCall") {
 		const body = {
 			type: "createForm",
@@ -44,9 +43,7 @@ figma.ui.onmessage = async (msg) => {
 		if (msg.params) {
 			figma.clientStorage
 				.setAsync("savedFormValue", msg.params)
-				.then(() => {
-					console.log(`Data saved`);
-				})
+				.then(() => {})
 				.catch((err) => {
 					console.error("Error saving data:", err);
 				});
@@ -58,7 +55,6 @@ figma.ui.onmessage = async (msg) => {
 			figma.notify("Please select a single image");
 		else {
 			node = figma.currentPage.selection[0];
-
 			if (node.fills[0].type === "IMAGE") {
 				const image = figma.getImageByHash(node.fills[0].imageHash);
 				let bytes: any = null;
@@ -74,14 +70,19 @@ figma.ui.onmessage = async (msg) => {
 		}
 	}
 	if (msg.type === "replace-image") {
-		figma.createImageAsync(msg?.bgRemovedUrl).then(async (image: Image) => {
-			node.fills = [
-				{
-					type: "IMAGE",
-					imageHash: image.hash,
-					scaleMode: "FILL",
-				},
-			];
-		});
+		figma
+			.createImageAsync(msg?.bgRemovedUrl)
+			.then(async (image: Image) => {
+				node.fills = [
+					{
+						type: "IMAGE",
+						imageHash: image.hash,
+						scaleMode: "FILL",
+					},
+				];
+			})
+			.catch((err) => {
+				figma.notify("Something went wrong");
+			});
 	} else if (msg.type === "close-plugin") figma.closePlugin();
 };

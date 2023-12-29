@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 import Button from "./components/button/button";
 import { PdkAxios } from "@pixelbin/admin/common.js";
 import { PixelbinConfig, PixelbinClient } from "@pixelbin/admin";
@@ -6,6 +7,7 @@ import eraseBgOptions from "./../constants";
 import { Util } from "./../util.ts";
 import "./styles/style.scss";
 import Pixelbin, { transformations } from "@pixelbin/core";
+import LoaderGif from "../assets/loader.gif";
 
 const defaultPixelBinClient: PixelbinClient = new PixelbinClient(
 	new PixelbinConfig({
@@ -57,10 +59,11 @@ function App() {
 				zone: "default", // optional
 			});
 			const EraseBg = transformations.EraseBG;
+			let name = `${data?.pluginMessage?.imageName}${uuidv4()}`;
 
 			res = await defaultPixelBinClient.assets.createSignedUrlV2({
 				path: "figma/ebg",
-				name: data.pluginMessage.imageName,
+				name: name,
 				format: "jpeg",
 				access: "public-read",
 				tags: ["tag1", "tag2"],
@@ -75,16 +78,11 @@ function App() {
 				concurrency: 2,
 			})
 				.then(() => {
-					console.log("Uploaded Successfully");
 					const url = JSON.parse(
 						res.presignedUrl.fields["x-pixb-meta-assetdata"]
 					);
-					console.log("Parsing", url?.fileId);
-
 					const demoImage = pixelbin.image(url?.fileId);
 					demoImage.setTransformation(EraseBg.bg());
-					console.log("url after remoing bg", demoImage.getUrl());
-
 					parent.postMessage(
 						{
 							pluginMessage: {
@@ -173,17 +171,16 @@ function App() {
 
 	return (
 		<div className="main-container">
-			<link
+			{/* <link
 				rel="stylesheet"
 				href="https://cdn.jsdelivr.net/npm/figma-plugin-ds@1.0.1/dist/figma-plugin-ds.min.css"
 			/>
-			<link rel="stylesheet" href="style.css" />
+			<link rel="stylesheet" href="style.css" /> */}
 			<div>
 				<div className="heading">Erase Bg</div>
 
 				<div id="options-wrapper">{formComponentCreator()}</div>
 			</div>
-
 			<div className="bottom-btn-container" onClick={handleReset}>
 				<div className="reset-container" id="reset">
 					<div className="icon icon--swap icon--blue reset-icon"></div>
@@ -198,6 +195,9 @@ function App() {
 					Apply
 				</button>
 			</div>
+			{/* <div className="loader-modal">
+				<img src={LoaderGif} alt="Loader" height={100} width={100} />
+			</div> */}
 		</div>
 	);
 }
