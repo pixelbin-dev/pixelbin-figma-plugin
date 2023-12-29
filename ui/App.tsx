@@ -47,7 +47,7 @@ function App() {
 			setFormValues({ ...temp });
 		}
 		if (data.pluginMessage.type === "selectedImage") {
-			let presignedUrl = null;
+			let res = null;
 			let blob = new Blob([data.pluginMessage.imageBytes], {
 				type: "image/jpeg",
 			});
@@ -57,33 +57,45 @@ function App() {
 				zone: "default", // optional
 			});
 			const EraseBg = transformations.EraseBG;
-			const demoImage = pixelbin.image("__playground/playground-default.jpeg"); // File Path on Pixelbin
-			demoImage.setTransformation(EraseBg.bg());
-			console.log("DIU", demoImage.getUrl());
 
-			presignedUrl = await defaultPixelBinClient.assets.createSignedUrlV2({
-				path: "path/to/containing/folder",
-				name: "filename",
+			res = await defaultPixelBinClient.assets.createSignedUrlV2({
+				path: "figma/ebg",
+				name: data.pluginMessage.imageName,
 				format: "jpeg",
 				access: "public-read",
 				tags: ["tag1", "tag2"],
 				metadata: {},
 				overwrite: false,
-				filenameOverride: true,
+				filenameOverride: false,
 			});
 
-			// bytes = data.pluginMessage.imageBytes;
-			// // console.log("bytes", data.pluginMessage.imageBytes);
-			// const pixelbin = new Pixelbin({
-			// 	cloudName: "muddy-lab-41820d",
-			// 	zone: "default",
-			// });
-			// const image = await pixelbin.image(
-			// 	"__playground/playground-default.jpeg"
-			// );
-			// let t = Pixelbin.transformations.EraseBG.bg();
-			// image.setTransformation(t);
-			// // console.log("url after remoing bg", image.getUrl());
+			Pixelbin.upload(blob as File, res?.presignedUrl, {
+				chunkSize: 2 * 1024 * 1024,
+				maxRetries: 1,
+				concurrency: 2,
+			})
+				.then(() => {
+					console.log("Uploaded Successfully");
+					const url = JSON.parse(
+						res.presignedUrl.fields["x-pixb-meta-assetdata"]
+					);
+					console.log("Parsing", url?.fileId);
+
+					const demoImage = pixelbin.image(url?.fileId);
+					demoImage.setTransformation(EraseBg.bg());
+					console.log("url after remoing bg", demoImage.getUrl());
+
+					parent.postMessage(
+						{
+							pluginMessage: {
+								type: "replace-image",
+								bgRemovedUrl: demoImage.getUrl(),
+							},
+						},
+						"*"
+					);
+				})
+				.catch((err) => console.log("Error while uploading", err));
 		}
 	};
 

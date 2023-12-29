@@ -20,6 +20,8 @@ const rectangles: RectangleNode[] = [];
 
 /* Handle the message from the UI, being aware that it will be an object with the single `count` property */
 figma.ui.onmessage = async (msg) => {
+	var node: any = figma?.currentPage?.selection[0];
+	console.log("NodeDetails", node);
 	if (msg.type === "initialCall") {
 		const body = {
 			type: "createForm",
@@ -32,7 +34,6 @@ figma.ui.onmessage = async (msg) => {
 			.then((value) => {
 				body.savedFormValue = value;
 				figma.ui.postMessage(body);
-				console.log("SavedValues", value);
 			})
 			.catch((err) => {
 				console.error("Error loading data:", err);
@@ -44,7 +45,7 @@ figma.ui.onmessage = async (msg) => {
 			figma.clientStorage
 				.setAsync("savedFormValue", msg.params)
 				.then(() => {
-					console.log(`Data saved`, msg.params);
+					console.log(`Data saved`);
 				})
 				.catch((err) => {
 					console.error("Error saving data:", err);
@@ -56,35 +57,31 @@ figma.ui.onmessage = async (msg) => {
 		if (figma.currentPage.selection.length > 1)
 			figma.notify("Please select a single image");
 		else {
-			let node: any = figma.currentPage.selection[0];
+			node = figma.currentPage.selection[0];
 
 			if (node.fills[0].type === "IMAGE") {
 				const image = figma.getImageByHash(node.fills[0].imageHash);
 				let bytes: any = null;
 				if (image) {
 					bytes = await image.getBytesAsync();
-					// const imageLayer = figma.createImage(bytes);
-					// figma.currentPage.appendChild(imageLayer);
 					figma.ui.postMessage({
 						type: "selectedImage",
 						imageBytes: bytes,
+						imageName: node?.name?.replace(/ /g, ""),
 					});
 				}
 			}
-
-			figma
-				.createImageAsync(
-					"https://cdn.pixelbin.io/v2/muddy-lab-41820d/erase.bg(i:general,shadow:false,r:true)/__playground/playground-default.jpeg"
-				)
-				.then(async (image: Image) => {
-					node.fills = [
-						{
-							type: "IMAGE",
-							imageHash: image.hash,
-							scaleMode: "FILL",
-						},
-					];
-				});
 		}
+	}
+	if (msg.type === "replace-image") {
+		figma.createImageAsync(msg?.bgRemovedUrl).then(async (image: Image) => {
+			node.fills = [
+				{
+					type: "IMAGE",
+					imageHash: image.hash,
+					scaleMode: "FILL",
+				},
+			];
+		});
 	} else if (msg.type === "close-plugin") figma.closePlugin();
 };
