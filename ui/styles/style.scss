@@ -2078,6 +2078,9 @@ select {
 	color: white;
 	width: 100%;
 	margin-bottom: 12px;
+	padding-left: 8px;
+	-webkit-appearance: none;
+	appearance: none;
 }
 select:focus {
 	outline: none !important;
@@ -2163,5 +2166,17 @@ button {
 	position: absolute;
 	top: 0;
 	left: 0;
+}
+
+.select-wrapper {
+	position: relative;
+}
+
+.select-wrapper::after {
+	content: "▼";
+	font-size: 0.6rem;
+	top: 10px;
+	right: 10px;
+	position: absolute;
 }
 // *********************************** ------ ************************************** //

@@ -1,15 +1,10 @@
 import eraseBgOptions from "../constants";
 
-// console.log("PixelBin", pixelbin);
-// Handle the execution of the first command
-// if (figma.command == "plugin-command")
-// 	figma.closePlugin("The plugin command was executed");
-
 // Configure the command that involves a UI
 
 // Present a UI, providing it with Figma CSS color variables
 figma.showUI(__html__, {
-	title: "Erase Bg",
+	title: "Erase.bg",
 	height: 400,
 	width: 248,
 	themeColors: true,

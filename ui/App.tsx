@@ -20,7 +20,7 @@ PdkAxios.defaults.withCredentials = false;
 
 function App() {
 	// Create a state variable to count upcoming rectangles
-	const [formValues, setFormValues] = useState({});
+	const [formValues, setFormValues] = useState<any>({});
 	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
@@ -83,7 +83,7 @@ function App() {
 						res.presignedUrl.fields["x-pixb-meta-assetdata"]
 					);
 					const demoImage = pixelbin.image(url?.fileId);
-					demoImage.setTransformation(EraseBg.bg());
+					demoImage.setTransformation(EraseBg.bg(formValues));
 					parent.postMessage(
 						{
 							pluginMessage: {
@@ -108,22 +108,24 @@ function App() {
 					switch (obj.type) {
 						case "enum":
 							return (
-								<select
-									onChange={(e) => {
-										setFormValues({
-											...formValues,
-											[Util.camelCase(obj.name)]: e.target.value,
-										});
-									}}
-									id={Util.camelCase(obj.name)}
-									value={formValues[Util.camelCase(obj.name)]}
-								>
-									{obj.enum.map((option, index) => (
-										<option key={index} value={option}>
-											{option}
-										</option>
-									))}
-								</select>
+								<div className="select-wrapper">
+									<select
+										onChange={(e) => {
+											setFormValues({
+												...formValues,
+												[Util.camelCase(obj.name)]: e.target.value,
+											});
+										}}
+										id={Util.camelCase(obj.name)}
+										value={formValues[Util.camelCase(obj.name)]}
+									>
+										{obj.enum.map((option, index) => (
+											<option key={index} value={option}>
+												{option}
+											</option>
+										))}
+									</select>
+								</div>
 							);
 						case "boolean":
 							return (
@@ -175,14 +177,7 @@ function App() {
 
 	return (
 		<div className={`main-container ${isLoading ? "hide-overflow" : ""}`}>
-			{/* <link
-				rel="stylesheet"
-				href="https://cdn.jsdelivr.net/npm/figma-plugin-ds@1.0.1/dist/figma-plugin-ds.min.css"
-			/>
-			<link rel="stylesheet" href="style.css" /> */}
 			<div>
-				<div className="heading">Erase Bg</div>
-
 				<div id="options-wrapper">{formComponentCreator()}</div>
 			</div>
 			<div className="bottom-btn-container">
