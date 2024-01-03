@@ -18,6 +18,13 @@ figma.showUI(__html__, {
 // Create a variable to store the rectangles that will be created
 const rectangles: RectangleNode[] = [];
 
+function toggleLoader(value: boolean) {
+	figma.ui.postMessage({
+		type: "toggle-loader",
+		value,
+	});
+}
+
 /* Handle the message from the UI, being aware that it will be an object with the single `count` property */
 figma.ui.onmessage = async (msg) => {
 	var node: any = figma?.currentPage?.selection[0];
@@ -43,19 +50,29 @@ figma.ui.onmessage = async (msg) => {
 		if (msg.params) {
 			figma.clientStorage
 				.setAsync("savedFormValue", msg.params)
-				.then(() => {})
+				.then(() => {
+					console.log("Data Saved");
+				})
 				.catch((err) => {
 					console.error("Error saving data:", err);
 				});
 		}
-		if (!figma.currentPage.selection.length)
+		if (!figma.currentPage.selection.length) {
 			figma.notify("Please select a image");
+			return;
+		}
 
-		if (figma.currentPage.selection.length > 1)
+		if (figma.currentPage.selection.length > 1) {
 			figma.notify("Please select a single image");
-		else {
+			return;
+		} else {
 			node = figma.currentPage.selection[0];
+			if (node.fills[0].type !== "IMAGE") {
+				figma.notify("Make sure you are selecting an image");
+				return;
+			}
 			if (node.fills[0].type === "IMAGE") {
+				toggleLoader(true);
 				const image = figma.getImageByHash(node.fills[0].imageHash);
 				let bytes: any = null;
 				if (image) {
@@ -80,9 +97,7 @@ figma.ui.onmessage = async (msg) => {
 						scaleMode: "FILL",
 					},
 				];
-				figma.ui.postMessage({
-					type: "toggleLoader",
-				});
+				toggleLoader(false);
 				figma.notify(
 					"Transformation Applied (you can use (ctrl/command + z/y) or  to undo/redo tranformation)",
 					{ timeout: 5000 }

@@ -96,8 +96,8 @@ function App() {
 				})
 				.catch((err) => console.log("Error while uploading", err));
 		}
-		if (data.pluginMessage.type === "toggleLoader") {
-			setIsLoading(!isLoading);
+		if (data.pluginMessage.type === "toggle-loader") {
+			setIsLoading(data.pluginMessage.value);
 		}
 	};
 
@@ -171,7 +171,6 @@ function App() {
 			},
 			"*"
 		);
-		setIsLoading(!isLoading);
 	}
 
 	return (
@@ -186,8 +185,8 @@ function App() {
 
 				<div id="options-wrapper">{formComponentCreator()}</div>
 			</div>
-			<div className="bottom-btn-container" onClick={handleReset}>
-				<div className="reset-container" id="reset">
+			<div className="bottom-btn-container">
+				<div className="reset-container" id="reset" onClick={handleReset}>
 					<div className="icon icon--swap icon--blue reset-icon"></div>
 					<div className="reset-text">Reset all</div>
 				</div>
@@ -202,7 +201,7 @@ function App() {
 			</div>
 			{isLoading && (
 				<div className="loader-modal">
-					<img src={LoaderGif} alt="Loader" height={100} width={100} />
+					<img src={LoaderGif} alt="Loader" height={50} width={50} />
 				</div>
 			)}
 		</div>
